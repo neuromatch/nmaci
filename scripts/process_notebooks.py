@@ -32,14 +32,15 @@ from PIL import Image
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
 
-REPO = os.environ.get("NMA_REPO", "course-content")
+ORG = os.environ.get("ORG", "neuromatch")
+REPO = os.environ.get("NMA_REPO", "course-content-template")
 MAIN_BRANCH = os.environ.get("NMA_MAIN_BRANCH", "main")
 
 GITHUB_RAW_URL = (
-    f"https://raw.githubusercontent.com/NeuromatchAcademy/{REPO}/{MAIN_BRANCH}"
+    f"https://raw.githubusercontent.com/{ORG}/{REPO}/{MAIN_BRANCH}"
 )
 GITHUB_TREE_URL = (
-    f"https://github.com/NeuromatchAcademy/{REPO}/tree/{MAIN_BRANCH}"
+    f"https://github.com/{ORG}/{REPO}/tree/{MAIN_BRANCH}"
 )
 
 
@@ -487,14 +488,14 @@ def test_has_colab_badge():
 def redirect_colab_badge_to_main_branch(cell):
     """Modify the Colab badge to point at the main branch on Github."""
     cell_text = cell["source"]
-    p = re.compile(r"^(.+/NeuromatchAcademy/" + REPO + r"/blob/)[\w-]+(/.+$)")
+    p = re.compile(r"^(.+/" + ORG + "/" + REPO + r"/blob/)[\w-]+(/.+$)")
     cell["source"] = p.sub(r"\1" + MAIN_BRANCH + r"\2", cell_text)
 
 
 def test_redirect_colab_badge_to_main_branch():
 
     original = (
-        "\"https://colab.research.google.com/github/NeuromatchAcademy/"
+        f"\"https://colab.research.google.com/github/{ORG}/"
         "course-content/blob/W1D1-updates/tutorials/W1D1_ModelTypes/"
         "W1D1_Tutorial1.ipynb\""
     )
@@ -502,7 +503,7 @@ def test_redirect_colab_badge_to_main_branch():
     redirect_colab_badge_to_main_branch(cell)
 
     expected = (
-        "\"https://colab.research.google.com/github/NeuromatchAcademy/"
+        f"\"https://colab.research.google.com/github/{ORG}/"
         "course-content/blob/main/tutorials/W1D1_ModelTypes/"
         "W1D1_Tutorial1.ipynb\""
     )
@@ -535,7 +536,7 @@ def redirect_colab_badge_to_instructor_version(cell):
 def test_redirect_colab_badge_to_student_version():
 
     original = (
-        "\"https://colab.research.google.com/github/NeuromatchAcademy/"
+        f"\"https://colab.research.google.com/github/{ORG}/"
         "course-content/blob/main/tutorials/W1D1_ModelTypes/"
         "W1D1_Tutorial1.ipynb\""
     )
@@ -544,7 +545,7 @@ def test_redirect_colab_badge_to_student_version():
     redirect_colab_badge_to_student_version(cell)
 
     expected = (
-        "\"https://colab.research.google.com/github/NeuromatchAcademy/"
+        f"\"https://colab.research.google.com/github/{ORG}/"
         "course-content/blob/main/tutorials/W1D1_ModelTypes/student/"
         "W1D1_Tutorial1.ipynb\""
     )
@@ -558,7 +559,7 @@ def add_kaggle_badge(cell, nb_path):
         badge_link = "https://kaggle.com/static/images/open-in-kaggle.svg"
         service = "https://kaggle.com/kernels/welcome?src="
         alter = "Open in Kaggle"
-        basic_url = "https://raw.githubusercontent.com/NeuromatchAcademy"
+        basic_url = f"https://raw.githubusercontent.com/{ORG}"
         a = f'<a href=\"{service}{basic_url}/{REPO}/{MAIN_BRANCH}/{nb_path}\" target=\"_parent\"><img src=\"{badge_link}\" alt=\"{alter}\"/></a>'
         cell["source"] += f' &nbsp; {a}'
 
