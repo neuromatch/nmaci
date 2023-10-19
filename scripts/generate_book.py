@@ -122,7 +122,7 @@ def main():
 #                                              ]})
 
     # Turn toc into list
-    toc_list = []
+    toc_list = [{'file': ""}]
     # toc_list = [{'file': f"tutorials/intro.ipynb"}]
     # if os.path.exists(f"tutorials/intro.ipynb"):
     #     pre_process_notebook(f"tutorials/intro.ipynb")
