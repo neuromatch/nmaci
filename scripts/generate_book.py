@@ -122,7 +122,7 @@ def main():
         )
     toc[part]['chapters'].append(
         {
-            'file': 'projects/docs/project_{year}_highlights.md',
+            'file': f'projects/docs/project_{year}_highlights.md',
             'sections': p_sections
         }
     )
