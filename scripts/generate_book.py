@@ -277,6 +277,9 @@ def change_video_widths(content):
             for line in cell['source']:
                 if line.startswith('link_id'):
                     slide_link = line.split('"')[1]
+                # Catch the case with missing link_id
+                else:
+                    slide_link = ""
             download_link = f"https://osf.io/download/{slide_link}/"
             render_link = f"https://mfr.ca-1.osf.io/render?url=https://osf.io/{slide_link}/?direct%26mode=render%26action=download%26mode=render"
             cell['source'] = ['# @markdown\n',
