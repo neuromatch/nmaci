@@ -80,9 +80,9 @@ def main():
 
     
 #    # Add the project booklet
-#     toc["Project Booklet"] = {"part": "Project Booklet", "chapters": []}
-#     toc["Professional Development"] = {
-#         "part": "Professional Development", "chapters": []}
+    toc["Project Booklet"] = {"part": "Project Booklet", "chapters": []}
+    toc["Professional Development"] = {
+        "part": "Professional Development", "chapters": []}
 
     with open("projects/professional_development/prof_dev_materials.yml") as fh:
         prof_dev_materials = yaml.load(fh, Loader=yaml.FullLoader)
