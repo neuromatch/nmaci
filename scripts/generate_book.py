@@ -70,13 +70,42 @@ def main():
 
     # Project chapter -- based on the repo
     # TODO: get this from the project_materials.yml
-    with open('projects/project_materials.yml') as fh:
-       project_materials = yaml.load(fh, Loader=yaml.FullLoader)
-    print(project_materials)
+    # with open('projects/project_materials.yml') as fh:
+    #    project_materials = yaml.load(fh, Loader=yaml.FullLoader)
+    # print(project_materials)
 #
-    part = 'Project Booklet'
-    toc[part]['chapters'].append({'file': 'projects/README.md', 'title': 'Introduction'})
-    toc[part]['chapters'].append({'file': 'projects/docs/project_guidance.md'})
+#     part = 'Project Booklet'
+#     toc[part]['chapters'].append({'file': 'projects/README.md', 'title': 'Introduction'})
+#     toc[part]['chapters'].append({'file': 'projects/docs/project_guidance.md'})
+
+    
+#    # Add the project booklet
+#     toc["Project Booklet"] = {"part": "Project Booklet", "chapters": []}
+#     toc["Professional Development"] = {
+#         "part": "Professional Development", "chapters": []}
+
+    with open("projects/professional_development/prof_dev_materials.yml") as fh:
+        prof_dev_materials = yaml.load(fh, Loader=yaml.FullLoader)
+
+    part = "Professional Development"
+    toc[part]['chapters'] = prof_dev_materials
+
+    # Project chapter -- based on the repo
+    with open("projects/project_materials.yml") as fh:
+        project_materials = yaml.load(fh, Loader=yaml.FullLoader)
+
+
+    part = "Project Booklet"
+    toc[part]['chapters'] = project_materials
+
+    # Loop over dataset types
+    # project_datasets = {"file": "projects/docs/datasets_overview.md", "sections": []}
+
+
+
+    # toc[part]['chapters'].append({'file': 'projects/docs/past_projects_overview.md'})
+    # toc[part]['chapters'].append({'file': 'projects/docs/datasets_overview.md'})
+    # toc[part]['chapters'].append({'file': 'projects/docs/continuing_your_project_after_the_course.md'})
 #
 #    # Add Modeling Steps
 #    toc[part]['chapters'].append({'file': 'projects/modelingsteps/intro.md',
@@ -91,41 +120,41 @@ def main():
 #    pre_process_notebook('projects/modelingsteps/TrainIllusionDataProject.ipynb')
 #
     # Loop over dataset types
-    project_datasets = {'file': 'projects/docs/datasets_overview.md', 'sections': []}
+    # project_datasets = {'file': 'projects/docs/datasets_overview.md', 'sections': []}
 
-    for category in project_materials[0]['categories']:
-       this_section = {'file': f'projects/docs/{category}.md', 'sections': []}
+#     for category in project_materials[0]['categories']:
+#     #    this_section = {'file': f'projects/docs/{category}.md', 'sections': []}
 
-       # Add README guide
-       this_section['sections'].append({'file': f"projects/{category}/README.md", 'title': 'Guide'})
+#        # Add README guide
+#        this_section['sections'].append({'file': f"projects/{category}/README.md", 'title': 'Guide'})
 
-       # Add and process all notebooks
-       try:
-           this_section['sections'].append({'file': f"projects/{category}/{category}_videos.ipynb"})
-           pre_process_notebook(f"projects/{category}/{category}_videos.ipynb")
-       except:
-           pass
-##         dataset_loaders = [entry for entry in project_materials if entry['category'] == category]
-##         for notebook in dataset_loaders:
-##             this_section['sections'].append({'file': notebook['link'], 'title': notebook['title']})
-##             pre_process_notebook(notebook['link'])
-       project_datasets['sections'].append(this_section)
-    toc[part]['chapters'].append(project_datasets)
-    toc[part]['chapters'].append({'file': 'projects/docs/project_templates.md'})
+#        # Add and process all notebooks
+#        try:
+#            this_section['sections'].append({'file': f"projects/{category}/{category}_videos.ipynb"})
+#            pre_process_notebook(f"projects/{category}/{category}_videos.ipynb")
+#        except:
+#            pass
+# ##         dataset_loaders = [entry for entry in project_materials if entry['category'] == category]
+# ##         for notebook in dataset_loaders:
+# ##             this_section['sections'].append({'file': notebook['link'], 'title': notebook['title']})
+# ##             pre_process_notebook(notebook['link'])
+#        project_datasets['sections'].append(this_section)
+#     toc[part]['chapters'].append(project_datasets)
+#     toc[part]['chapters'].append({'file': 'projects/docs/project_templates.md'})
 
-    # Past Projects
-    p_sections = []
-    year = project_materials[1]['year']
-    for past_categories in project_materials[1]['past_categories']:
-        p_sections.append(
-            {'file': f'projects/docs/projects_{year}/{past_categories}.md'}
-        )
-    toc[part]['chapters'].append(
-        {
-            'file': f'projects/docs/project_{year}_highlights.md',
-            'sections': p_sections
-        }
-    )
+#     # Past Projects
+#     p_sections = []
+#     year = project_materials[1]['year']
+#     for past_categories in project_materials[1]['past_categories']:
+#         p_sections.append(
+#             {'file': f'projects/docs/projects_{year}/{past_categories}.md'}
+#         )
+#     toc[part]['chapters'].append(
+#         {
+#             'file': f'projects/docs/project_{year}_highlights.md',
+#             'sections': p_sections
+#         }
+#     )
     # toc[part]['chapters'].append({'file': 'projects/docs/project_2020_highlights.md',
     #                             'sections': [{'file': 'projects/docs/projects_2020/neurons.md'},
     #                                 {'file': 'projects/docs/projects_2020/theory.md'},
