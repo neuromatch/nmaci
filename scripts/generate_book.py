@@ -6,7 +6,10 @@ import traceback
 import json
 from bs4 import BeautifulSoup
 
+ORG = os.environ.get("ORG", "neuromatch")
 REPO = os.environ.get("NMA_REPO", "course-content-template")
+PREREQ_REPOR = os.environ.get("PREREQ_REPO", "precourse")
+PREREQ_INTRO = os.environ.get("PREREQ_INTRO", "ComputationalNeuroscience")
 ARG = sys.argv[1]
 
 
@@ -197,7 +200,7 @@ def main():
     toc_list += [chapter]
 
     # Pre-reqs file
-    chapter = {'chapters': [{'file': 'prereqs/ComputationalNeuroscience.md'}]}
+    chapter = {'chapters': [{'file': f'prereqs/{PREREQ_INTRO}.md'}]}
     toc_list += [chapter]
 
     for key in toc.keys():
