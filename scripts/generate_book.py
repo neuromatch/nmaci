@@ -200,7 +200,10 @@ def main():
     toc_list += [chapter]
 
     # Pre-reqs file
-    chapter = {'chapters': [{'file': f'prereqs/{PREREQ_INTRO}.md'}]}
+    if "climate" in REPO:
+        chapter = {'chapters': [{'file': f'tutorials/prereqs/{PREREQ_INTRO}.md'}]}
+    else:
+        chapter = {'chapters': [{'file': f'prereqs/{PREREQ_INTRO}.md'}]}
     toc_list += [chapter]
 
     for key in toc.keys():
