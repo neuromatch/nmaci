@@ -172,7 +172,7 @@ def main():
         pre_process_notebook(f"tutorials/intro.ipynb")
 
     # TA training file
-    if ARG == "instructor":
+    if ARG == "instructor" and "climate" not in REPO:
         chapter = {'chapters': [{'file': 'tatraining/TA_Training_CN.ipynb'}]}
         pre_process_notebook('tatraining/TA_Training_CN.ipynb')
         toc_list += [chapter]
