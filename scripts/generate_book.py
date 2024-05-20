@@ -97,9 +97,14 @@ def main():
     with open("projects/project_materials.yml") as fh:
         project_materials = yaml.load(fh, Loader=yaml.FullLoader)
 
-    print(project_materials)
     part = "Project Booklet"
     toc[part]['chapters'] = project_materials
+
+    # Process Project Notebooks
+    for m in project_materials:
+        if m["title"] == "Project materials":
+            for project in m["sections"]:
+                pre_process_notebook(project["file"])
 
     # Loop over dataset types
     # project_datasets = {"file": "projects/docs/datasets_overview.md", "sections": []}
