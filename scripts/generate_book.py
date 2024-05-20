@@ -97,7 +97,7 @@ def main():
     with open("projects/project_materials.yml") as fh:
         project_materials = yaml.load(fh, Loader=yaml.FullLoader)
 
-
+    print(project_materials)
     part = "Project Booklet"
     toc[part]['chapters'] = project_materials
 
