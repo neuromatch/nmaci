@@ -317,6 +317,7 @@ def change_video_widths(content):
             for line in cell['source']:
                 if line.startswith('link_id'):
                     slide_link = line.split('"')[1]
+                    break
                 # Catch the case with missing link_id
                 else:
                     slide_link = ""
