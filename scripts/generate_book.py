@@ -179,7 +179,7 @@ def main():
 
     # TODO: fix this for the generic case
     # TA training file
-    if ARG == "instructor" and ("climate" or "neuroai" not in REPO):
+    if ARG == "instructor" and ("climate" not in REPO or "neuroai" not in REPO):
         chapter = {'chapters': [{'file': 'tatraining/TA_Training_CN.ipynb'}]}
         pre_process_notebook('tatraining/TA_Training_CN.ipynb')
         toc_list += [chapter]
