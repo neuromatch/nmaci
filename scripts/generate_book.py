@@ -171,13 +171,15 @@ def main():
     #                                 {'file': 'projects/docs/projects_2020/eeg.md'}
     #                             ]})
 
+    # TODO: Fix TOC for new format
     # Turn toc into list
     toc_list = [{'file': f"tutorials/intro.ipynb"}]
     if os.path.exists(f"tutorials/intro.ipynb"):
         pre_process_notebook(f"tutorials/intro.ipynb")
 
+    # TODO: fix this for the generic case
     # TA training file
-    if ARG == "instructor" and "climate" not in REPO:
+    if ARG == "instructor" and ("climate" or "neuroai" not in REPO):
         chapter = {'chapters': [{'file': 'tatraining/TA_Training_CN.ipynb'}]}
         pre_process_notebook('tatraining/TA_Training_CN.ipynb')
         toc_list += [chapter]
