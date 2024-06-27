@@ -31,7 +31,7 @@ def chatified(fname):
 
 
 def get_text(fname):
-    with open(os.path.join(os.getcwd(), 'chatify', fname), 'r') as f:
+    with open(os.path.join(os.getcwd(), 'ci/chatify', fname), 'r') as f:
         return ''.join(f.readlines())
 
 
