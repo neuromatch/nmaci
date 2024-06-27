@@ -62,15 +62,19 @@ def inject_chatify(fname):
             if '# Setup' in cell['source']:
                 break
 
-    if chatified(fname):
-        new_notebook.cells[0] = header_cell
-        new_notebook.cells[idx] = background_cell
-        new_notebook.cells[idx + 1] = davos_cell
-        new_notebook.cells[idx + 2] = chatify_cell
-    else:
-        new_notebook.cells.insert(idx, background_cell)
-        new_notebook.cells.insert(idx + 1, davos_cell)
-        new_notebook.cells.insert(idx + 2, chatify_cell)
+    try:
+        if chatified(fname):
+            new_notebook.cells[0] = header_cell
+            new_notebook.cells[idx] = background_cell
+            new_notebook.cells[idx + 1] = davos_cell
+            new_notebook.cells[idx + 2] = chatify_cell
+        else:
+            new_notebook.cells.insert(idx, background_cell)
+            new_notebook.cells.insert(idx + 1, davos_cell)
+            new_notebook.cells.insert(idx + 2, chatify_cell)
+    except IndexError:
+        print(f"Error Notebook: {fname}")
+        raise ValueError("Notebook Missing Setup Header")
 
     # Write the file
     nbf.write(
