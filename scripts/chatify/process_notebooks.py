@@ -62,7 +62,7 @@ def inject_chatify(fname):
             if '# Setup' in cell['source']:
                 break
 
-    if idx == len(new_notebook['cell']) - 1:
+    if idx == len(new_notebook['cells']) - 1:
         return
 
     try:
