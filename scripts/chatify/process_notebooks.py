@@ -15,8 +15,8 @@ from gptcache.processor.pre import get_prompt
 from gptcache.manager import get_data_manager
 from gptcache.similarity_evaluation.exact_match import ExactMatchEvaluation
 
-source_repo = 'Neuromatch Academy'
-mod_repo = 'Neuromatch Academy (Chatified)'
+source_repo = os.environ.get("SOURCE_REPO", "NeuroAI_Course")
+mod_repo = os.environ.get("MOD_REPO", "chatify_NeuroAI_Course")
 CACHE = False
 
 
