@@ -73,7 +73,7 @@ def inject_chatify(fname):
             new_notebook.cells.insert(idx + 1, davos_cell)
             new_notebook.cells.insert(idx + 2, chatify_cell)
     except IndexError:
-        raise ValueError(f"Notebook Missing Setup Header: {fname}")
+        raise ValueError(f"Notebook Missing Setup Header: {fname}, index: {idx}")
 
     # Write the file
     nbf.write(
