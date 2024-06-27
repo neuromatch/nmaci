@@ -62,6 +62,9 @@ def inject_chatify(fname):
             if '# Setup' in cell['source']:
                 break
 
+    if idx == len(new_notebook['cell']) - 1:
+        return
+
     try:
         if chatified(fname):
             new_notebook.cells[0] = header_cell
