@@ -22,6 +22,8 @@
 import os
 import re
 import sys
+
+import time
 import argparse
 import hashlib
 from io import BytesIO
@@ -31,6 +33,7 @@ from copy import deepcopy
 from PIL import Image
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
+
 
 ORG = os.environ.get("ORG", "neuromatch")
 REPO = os.environ.get("NMA_REPO", "course-content-template")
@@ -42,6 +45,24 @@ GITHUB_RAW_URL = (
 GITHUB_TREE_URL = (
     f"https://github.com/{ORG}/{REPO}/tree/{MAIN_BRANCH}"
 )
+
+
+class LoggingExecutePreprocessor(ExecutePreprocessor):
+    """ExecutePreprocessor that logs cell-by-cell progress."""
+
+    def preprocess_cell(self, cell, resources, index):
+        if cell.cell_type == 'code' and cell.source.strip():
+            code_preview = cell.source.strip().split('\n')[0][:80]
+            print(f"[Cell {index + 1}] {code_preview}")
+            sys.stdout.flush()
+            start = time.time()
+            result = super().preprocess_cell(cell, resources, index)
+            elapsed = time.time() - start
+            if elapsed > 5:
+                print(f"  completed in {elapsed:.1f}s")
+                sys.stdout.flush()
+            return result
+        return super().preprocess_cell(cell, resources, index)
 
 
 def main(arglist):
@@ -97,7 +118,7 @@ def main(arglist):
         clean_whitespace(nb)
 
         # Ensure that we have an executed notebook, in one of two ways
-        executor = ExecutePreprocessor(**exec_kws)
+        executor = LoggingExecutePreprocessor(**exec_kws)
         if args.execute:
             # Check dynamically by executing and reporting errors
             print(f"Executing {nb_path}")
