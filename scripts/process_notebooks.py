@@ -522,11 +522,10 @@ def generate_badge_cell(nb_path: Path | str) -> dict:
         f'<img src="{kaggle_badge}" alt="Open in Kaggle"/></a>'
     )
 
-    return {
-        "cell_type": "markdown",
-        "metadata": {"id": "view-in-github", "colab_type": "text"},
-        "source": badge_html,
-    }
+    cell = nbformat.v4.new_markdown_cell(source=badge_html)
+    cell.metadata["id"] = "view-in-github"
+    cell.metadata["colab_type"] = "text"
+    return cell
 
 
 def add_badge_cell(nb: dict, nb_path: dict | str) -> None:
