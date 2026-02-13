@@ -1,5 +1,19 @@
+import sys
+import os
 from subprocess import run
 from pytest import fixture
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from scripts.process_notebooks import (
+    clean_whitespace,
+    has_solution,
+    has_colab_badge,
+    redirect_colab_badge_to_main_branch,
+    redirect_colab_badge_to_student_version,
+    ORG,
+    REPO,
+    MAIN_BRANCH,
+)
 
 
 @fixture
@@ -64,3 +78,81 @@ def test_executed_successfully(cmd):
     res = run(cmdline, capture_output=True)
     assert not res.returncode
     assert nb in res.stdout.decode("utf-8")
+
+
+# --- Unit tests extracted from scripts/process_notebooks.py ---
+
+
+def test_clean_whitespace():
+
+    nb = {
+        "cells": [
+            {"cell_type": "code", "source": "import numpy  \nimport matplotlib   "},
+            {"cell_type": "markdown", "source": "# Test notebook  "},
+        ]
+    }
+    clean_whitespace(nb)
+    assert nb["cells"][0]["source"] == "import numpy\nimport matplotlib"
+    assert nb["cells"][1]["source"] == "# Test notebook  "
+
+
+def test_has_solution():
+
+    cell = {"source": "# solution"}
+    assert not has_solution(cell)
+
+    cell = {"source": "def exercise():\n    pass\n# to_remove"}
+    assert not has_solution(cell)
+
+    cell = {"source": "# to_remove_solution\ndef exercise():\n    pass"}
+    assert has_solution(cell)
+
+
+def test_has_colab_badge():
+
+    cell = {"source": "import numpy as np"}
+    assert not has_colab_badge(cell)
+
+    cell = {
+        "source": '<img src="https://colab.research.google.com/assets/colab-badge.svg" '
+    }
+    assert has_colab_badge(cell)
+
+
+def test_redirect_colab_badge_to_main_branch():
+
+    original = (
+        f'"https://colab.research.google.com/github/{ORG}/'
+        f"{REPO}/blob/W1D1-updates/tutorials/W1D1_ModelTypes/"
+        'W1D1_Tutorial1.ipynb"'
+    )
+    cell = {"source": original}
+    redirect_colab_badge_to_main_branch(cell)
+
+    expected = (
+        f'"https://colab.research.google.com/github/{ORG}/'
+        f"{REPO}/blob/{MAIN_BRANCH}/tutorials/W1D1_ModelTypes/"
+        'W1D1_Tutorial1.ipynb"'
+    )
+
+    assert cell["source"] == expected
+
+
+def test_redirect_colab_badge_to_student_version():
+
+    original = (
+        f'"https://colab.research.google.com/github/{ORG}/'
+        f"{REPO}/blob/{MAIN_BRANCH}/tutorials/W1D1_ModelTypes/"
+        'W1D1_Tutorial1.ipynb"'
+    )
+
+    cell = {"source": original}
+    redirect_colab_badge_to_student_version(cell)
+
+    expected = (
+        f'"https://colab.research.google.com/github/{ORG}/'
+        f"{REPO}/blob/{MAIN_BRANCH}/tutorials/W1D1_ModelTypes/student/"
+        'W1D1_Tutorial1.ipynb"'
+    )
+
+    assert cell["source"] == expected
