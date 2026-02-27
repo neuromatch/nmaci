@@ -49,8 +49,8 @@ class LoggingExecutePreprocessor(ExecutePreprocessor):
     """ExecutePreprocessor that logs cell-by-cell progress."""
 
     def preprocess_cell(self, cell, resources, index):
-        if cell.cell_type == 'code' and cell.source.strip():
-            code_preview = cell.source.strip().split('\n')[0][:80]
+        if cell.cell_type == "code" and cell.source.strip():
+            code_preview = cell.source.strip().split("\n")[0][:80]
             print(f"[Cell {index + 1}] {code_preview}")
             sys.stdout.flush()
             start = time.time()
@@ -455,29 +455,6 @@ def has_code_exercise(cell):
     return cell_text.startswith("#@titlesolution") or "to_removesolution" in first_line
 
 
-<<<<<<< HEAD
-def has_colab_badge(cell):
-    """Return True if cell has a Colab badge as an HTML element."""
-    return "colab-badge.svg" in cell["source"]
-
-
-def redirect_colab_badge_to_main_branch(cell):
-    """Modify the Colab badge to point at the main branch on Github."""
-    cell_text = cell["source"]
-    p = re.compile(r"^(.+/" + ORG + "/" + REPO + r"/blob/)[\w-]+(/.+$)")
-    cell["source"] = p.sub(r"\1" + MAIN_BRANCH + r"\2", cell_text)
-
-
-def redirect_colab_badge_to_student_version(cell):
-    """Modify the Colab badge to point at student version of the notebook."""
-    cell_text = cell["source"]
-    # redirect the colab badge
-    p = re.compile(r"(^.+blob/" + MAIN_BRANCH + r"/tutorials/W\dD\d\w+)/(\w+\.ipynb.+)")
-    cell_text = p.sub(r"\1/student/\2", cell_text)
-    # redirect the kaggle badge
-    p = re.compile(r"(^.+/tutorials/W\dD\d\w+)/(\w+\.ipynb.+)")
-    cell["source"] = p.sub(r"\1/student/\2", cell_text)
-=======
 def test_has_solution():
 
     cell = {"source": "# solution"}
@@ -561,7 +538,6 @@ def generate_badge_cell(nb_path: Path | str) -> dict:
 
 def add_badge_cell(nb: dict, nb_path: dict | str) -> None:
     """Remove existing badges and add a new badge cell at the top of the notebook.
->>>>>>> main
 
     Args:
         nb: The notebook dict
@@ -571,30 +547,6 @@ def add_badge_cell(nb: dict, nb_path: dict | str) -> None:
     badge_cell = generate_badge_cell(nb_path)
     nb["cells"].insert(0, badge_cell)
 
-<<<<<<< HEAD
-def redirect_colab_badge_to_instructor_version(cell):
-    """Modify the Colab badge to point at instructor version of the notebook."""
-    cell_text = cell["source"]
-    # redirect the colab badge
-    p = re.compile(r"(^.+blob/" + MAIN_BRANCH + r"/tutorials/W\dD\d\w+)/(\w+\.ipynb.+)")
-    cell_text = p.sub(r"\1/instructor/\2", cell_text)
-    # redirect the kaggle badge
-    p = re.compile(r"(^.+/tutorials/W\dD\d\w+)/(\w+\.ipynb.+)")
-    cell["source"] = p.sub(r"\1/instructor/\2", cell_text)
-
-
-def add_kaggle_badge(cell, nb_path):
-    """Add a kaggle badge if not exists."""
-    cell_text = cell["source"]
-    if "kaggle" not in cell_text:
-        badge_link = "https://kaggle.com/static/images/open-in-kaggle.svg"
-        service = "https://kaggle.com/kernels/welcome?src="
-        alter = "Open in Kaggle"
-        basic_url = f"https://raw.githubusercontent.com/{ORG}"
-        a = f'<a href=\"{service}{basic_url}/{REPO}/{MAIN_BRANCH}/{nb_path}\" target=\"_parent\"><img src=\"{badge_link}\" alt=\"{alter}\"/></a>'
-        cell["source"] += f' &nbsp; {a}'
-=======
->>>>>>> main
 
 def sequentially_executed(nb):
     """Return True if notebook appears freshly executed from top-to-bottom."""

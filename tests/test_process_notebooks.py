@@ -8,6 +8,7 @@ from scripts.process_notebooks import (
     generate_badge_cell,
     remove_existing_badges,
     clean_whitespace,
+    has_solution,
 )
 
 
@@ -100,59 +101,7 @@ def test_has_solution():
     assert has_solution(cell)
 
 
-def test_has_colab_badge():
-
-    cell = {"source": "import numpy as np"}
-    assert not has_colab_badge(cell)
-
-    cell = {
-        "source": '<img src="https://colab.research.google.com/assets/colab-badge.svg" '
-    }
-    assert has_colab_badge(cell)
-
-
-def test_redirect_colab_badge_to_main_branch():
-
-    original = (
-        f'"https://colab.research.google.com/github/{ORG}/'
-        f"{REPO}/blob/W1D1-updates/tutorials/W1D1_ModelTypes/"
-        'W1D1_Tutorial1.ipynb"'
-    )
-    cell = {"source": original}
-    redirect_colab_badge_to_main_branch(cell)
-
-    expected = (
-        f'"https://colab.research.google.com/github/{ORG}/'
-        f"{REPO}/blob/{MAIN_BRANCH}/tutorials/W1D1_ModelTypes/"
-        'W1D1_Tutorial1.ipynb"'
-    )
-
-    assert cell["source"] == expected
-
-
-def test_redirect_colab_badge_to_student_version():
-
-    original = (
-        f'"https://colab.research.google.com/github/{ORG}/'
-        f"{REPO}/blob/{MAIN_BRANCH}/tutorials/W1D1_ModelTypes/"
-        'W1D1_Tutorial1.ipynb"'
-    )
-
-    cell = {"source": original}
-    redirect_colab_badge_to_student_version(cell)
-
-    expected = (
-        f'"https://colab.research.google.com/github/{ORG}/'
-        f"{REPO}/blob/{MAIN_BRANCH}/tutorials/W1D1_ModelTypes/student/"
-        'W1D1_Tutorial1.ipynb"'
-    )
-
-    assert cell["source"] == expected
-
-
 # --- Badge function tests ---
-
-
 def test_remove_existing_badges_colab_only():
     """Test removing a cell with only a Colab badge."""
     nb = {
