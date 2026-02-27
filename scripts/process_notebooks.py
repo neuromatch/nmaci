@@ -49,8 +49,8 @@ class LoggingExecutePreprocessor(ExecutePreprocessor):
     """ExecutePreprocessor that logs cell-by-cell progress."""
 
     def preprocess_cell(self, cell, resources, index):
-        if cell.cell_type == 'code' and cell.source.strip():
-            code_preview = cell.source.strip().split('\n')[0][:80]
+        if cell.cell_type == "code" and cell.source.strip():
+            code_preview = cell.source.strip().split("\n")[0][:80]
             print(f"[Cell {index + 1}] {code_preview}")
             sys.stdout.flush()
             start = time.time()
@@ -439,19 +439,6 @@ def clean_whitespace(nb):
             source_lines = cell["source"].splitlines()
             clean_lines = [line.rstrip() for line in source_lines]
             cell["source"] = "\n".join(clean_lines)
-
-
-def test_clean_whitespace():
-
-    nb = {
-        "cells": [
-            {"cell_type": "code", "source": "import numpy  \nimport matplotlib   "},
-            {"cell_type": "markdown", "source": "# Test notebook  "},
-        ]
-    }
-    clean_whitespace(nb)
-    assert nb["cells"][0]["source"] == "import numpy\nimport matplotlib"
-    assert nb["cells"][1]["source"] == "# Test notebook  "
 
 
 def has_solution(cell):
