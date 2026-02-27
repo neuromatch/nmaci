@@ -19,6 +19,7 @@
 - Write solution code to a solutions/ subdirectory
 
 """
+
 import os
 import re
 import sys
@@ -29,6 +30,7 @@ import hashlib
 from io import BytesIO
 from binascii import a2b_base64
 from copy import deepcopy
+from pathlib import Path
 
 from PIL import Image
 import nbformat
@@ -39,12 +41,8 @@ ORG = os.environ.get("ORG", "neuromatch")
 REPO = os.environ.get("NMA_REPO", "course-content-template")
 MAIN_BRANCH = os.environ.get("NMA_MAIN_BRANCH", "main")
 
-GITHUB_RAW_URL = (
-    f"https://raw.githubusercontent.com/{ORG}/{REPO}/{MAIN_BRANCH}"
-)
-GITHUB_TREE_URL = (
-    f"https://github.com/{ORG}/{REPO}/tree/{MAIN_BRANCH}"
-)
+GITHUB_RAW_URL = f"https://raw.githubusercontent.com/{ORG}/{REPO}/{MAIN_BRANCH}"
+GITHUB_TREE_URL = f"https://github.com/{ORG}/{REPO}/tree/{MAIN_BRANCH}"
 
 
 class LoggingExecutePreprocessor(ExecutePreprocessor):
@@ -74,12 +72,14 @@ def main(arglist):
     # - Don't process student notebooks
     # - Don't process deleted notebooks (which are paths in the git manifest)
     def should_process(path):
-        return all([
-            path.endswith(".ipynb"),
-            "student/" not in path,
-            "instructor/" not in path,
-            os.path.isfile(path),
-        ])
+        return all(
+            [
+                path.endswith(".ipynb"),
+                "student/" not in path,
+                "instructor/" not in path,
+                os.path.isfile(path),
+            ]
+        )
 
     nb_paths = [arg for arg in args.files if should_process(arg)]
     if not nb_paths:
@@ -145,12 +145,8 @@ def main(arglist):
         nb_dir, nb_fname = os.path.split(nb_path)
         nb_name, _ = os.path.splitext(nb_fname)
 
-        # Loop through the cells and fix any Colab badges we encounter
-        for cell in nb.get("cells", []):
-            if has_colab_badge(cell):
-                redirect_colab_badge_to_main_branch(cell)
-                # add kaggle badge
-                add_kaggle_badge(cell, nb_path)
+        # Add badges to the main notebook (pointing at itself)
+        add_badge_cell(nb, nb_path)
 
         # Ensure that Colab metadata dict exists and enforce some settings
         add_colab_metadata(nb, nb_name)
@@ -163,7 +159,7 @@ def main(arglist):
 
         # if the notebook is not in tutorials, skip the creation/update of the student, static, solutions directories
         if not nb_path.startswith("tutorials"):
-          continue
+            continue
 
         # Create subdirectories, if they don't exist
         student_dir = make_sub_dir(nb_dir, "student")
@@ -175,27 +171,22 @@ def main(arglist):
         print(f"Extracting solutions from {nb_path}")
         processed = extract_solutions(nb, nb_dir, nb_name)
         student_nb, static_images, solution_snippets = processed
-        
+
         # Generate the instructor version and save it to a subdirectory
         print(f"Create instructor notebook from {nb_path}")
         instructor_nb = instructor_version(nb, nb_dir, nb_name)
 
-        # Loop through cells and point the colab badge at the student version
-        for cell in student_nb.get("cells", []):
-            if has_colab_badge(cell):
-                redirect_colab_badge_to_student_version(cell)
-                # add kaggle badge
-                add_kaggle_badge(cell, nb_path)
+        # Build paths for student and instructor versions
+        student_nb_path = os.path.join(student_dir, nb_fname)
+        instructor_nb_path = os.path.join(instructor_dir, nb_fname)
 
-        # Loop through cells and point the colab badge at the instructor version
-        for cell in instructor_nb.get("cells", []):
-            if has_colab_badge(cell):
-                redirect_colab_badge_to_instructor_version(cell)
-                # add kaggle badge
-                add_kaggle_badge(cell, nb_path)
+        # Add badges pointing to the student version
+        add_badge_cell(student_nb, student_nb_path)
+
+        # Add badges pointing to the instructor version
+        add_badge_cell(instructor_nb, instructor_nb_path)
 
         # Write the student version of the notebook
-        student_nb_path = os.path.join(student_dir, nb_fname)
         print(f"Writing student notebook to {student_nb_path}")
         with open(student_nb_path, "w") as f:
             clean_student_nb = clean_notebook(student_nb)
@@ -215,7 +206,6 @@ def main(arglist):
                 f.write(snippet)
 
         # Write the instructor version of the notebook
-        instructor_nb_path = os.path.join(instructor_dir, nb_fname)
         print(f"Writing instructor notebook to {instructor_nb_path}")
         with open(instructor_nb_path, "w") as f:
             clean_instructor_nb = clean_notebook(instructor_nb)
@@ -225,6 +215,7 @@ def main(arglist):
 
 
 # ------------------------------------------------------------------------------------ #
+
 
 def execute_notebook(executor, nb, raise_fast):
     """Execute the notebook, returning errors to be handled."""
@@ -319,13 +310,15 @@ def extract_solutions(nb, nb_dir, nb_name):
                     w = img.width // (dpi_w // 72)
                     h = img.height // (dpi_h // 72)
 
-                    tag_args = " ".join([
-                        "alt='Solution hint'",
-                        "align='left'",
-                        f"width={w}",
-                        f"height={h}",
-                        f"src={url}",
-                    ])
+                    tag_args = " ".join(
+                        [
+                            "alt='Solution hint'",
+                            "align='left'",
+                            f"width={w}",
+                            f"height={h}",
+                            f"src={url}",
+                        ]
+                    )
                     new_source += f"<img {tag_args}>\n\n"
 
             cell["source"] = new_source
@@ -350,10 +343,10 @@ def instructor_version(nb, nb_dir, nb_name):
     for i, cell in enumerate(nb_cells):
 
         if has_code_exercise(cell):
-            if nb_cells[i-1]["cell_type"] == "markdown":
-                cell_id = i-2
+            if nb_cells[i - 1]["cell_type"] == "markdown":
+                cell_id = i - 2
             else:
-                cell_id = i-1
+                cell_id = i - 1
             nb_cells[cell_id]["cell_type"] = "markdown"
             nb_cells[cell_id]["metadata"]["colab_type"] = "text"
             if "outputID" in nb_cells[cell_id]["metadata"]:
@@ -363,7 +356,9 @@ def instructor_version(nb, nb_dir, nb_name):
             if "execution_count" in nb_cells[cell_id]:
                 del nb_cells[cell_id]["execution_count"]
 
-            nb_cells[cell_id]['source'] = '```python\n' + nb_cells[cell_id]['source']+'\n\n```'
+            nb_cells[cell_id]["source"] = (
+                "```python\n" + nb_cells[cell_id]["source"] + "\n\n```"
+            )
 
     return nb
 
@@ -378,7 +373,9 @@ def clean_notebook(nb, clear_outputs=True):
 
     # Set kernel to default Python3
     nb.metadata["kernel"] = {
-        "display_name": "Python 3", "language": "python", "name": "python3"
+        "display_name": "Python 3",
+        "language": "python",
+        "name": "python3",
     }
 
     # Iterate through the cells and clean up each one
@@ -423,11 +420,13 @@ def add_colab_metadata(nb, nb_name):
         nb["metadata"]["colab"] = {}
 
     # Always overwrite the name and show the ToC/Colab button
-    nb["metadata"]["colab"].update({
-        "name": nb_name,
-        "toc_visible": True,
-        "include_colab_link": True,
-    })
+    nb["metadata"]["colab"].update(
+        {
+            "name": nb_name,
+            "toc_visible": True,
+            "include_colab_link": True,
+        }
+    )
 
     # Allow collapsed sections, but default to not having any
     nb["metadata"]["colab"].setdefault("collapsed_sections", [])
@@ -446,22 +445,17 @@ def has_solution(cell):
     """Return True if cell is marked as containing an exercise solution."""
     cell_text = cell["source"].replace(" ", "").lower()
     first_line = cell_text.split("\n")[0]
-    return (
-        cell_text.startswith("#@titlesolution")
-        or "to_remove" in first_line
-    )
+    return cell_text.startswith("#@titlesolution") or "to_remove" in first_line
 
 
 def has_code_exercise(cell):
     """Return True if cell is marked as containing an exercise solution."""
     cell_text = cell["source"].replace(" ", "").lower()
     first_line = cell_text.split("\n")[0]
-    return (
-        cell_text.startswith("#@titlesolution")
-        or "to_removesolution" in first_line
-    )
+    return cell_text.startswith("#@titlesolution") or "to_removesolution" in first_line
 
 
+<<<<<<< HEAD
 def has_colab_badge(cell):
     """Return True if cell has a Colab badge as an HTML element."""
     return "colab-badge.svg" in cell["source"]
@@ -483,8 +477,101 @@ def redirect_colab_badge_to_student_version(cell):
     # redirect the kaggle badge
     p = re.compile(r"(^.+/tutorials/W\dD\d\w+)/(\w+\.ipynb.+)")
     cell["source"] = p.sub(r"\1/student/\2", cell_text)
+=======
+def test_has_solution():
+
+    cell = {"source": "# solution"}
+    assert not has_solution(cell)
+
+    cell = {"source": "def exercise():\n    pass\n# to_remove"}
+    assert not has_solution(cell)
+
+    cell = {"source": "# to_remove_solution\ndef exercise():\n    pass"}
+    assert has_solution(cell)
 
 
+def remove_existing_badges(nb: dict) -> None:
+    """Remove existing Colab and Kaggle badges from all cells in the notebook.
+
+    - Removes Colab badge HTML (<a href="...colab..."><img src="...colab-badge.svg..."/></a>)
+    - Removes Kaggle badge HTML (<a href="...kaggle..."><img src="...open-in-kaggle.svg..."/></a>)
+    - Removes &nbsp; spacers between badges
+    - Deletes cells that become empty after badge removal
+    - Strips leading/trailing whitespace from cells
+    """
+    colab_pattern = re.compile(
+        r'<a\s+[^>]*href="[^"]*colab[^"]*"[^>]*>\s*<img\s+[^>]*colab-badge\.svg[^>]*/>\s*</a>',
+        re.IGNORECASE,
+    )
+    kaggle_pattern = re.compile(
+        r'<a\s+[^>]*href="[^"]*kaggle[^"]*"[^>]*>\s*<img\s+[^>]*open-in-kaggle\.svg[^>]*/>\s*</a>',
+        re.IGNORECASE,
+    )
+    nbsp_pattern = re.compile(r"\s*&nbsp;\s*")
+
+    cells_to_remove = []
+    for i, cell in enumerate(nb.get("cells", [])):
+
+        source = cell.get("source", "")
+        source = colab_pattern.sub("", source)
+        source = kaggle_pattern.sub("", source)
+        source = nbsp_pattern.sub("", source)
+        source = source.strip()
+        cell["source"] = source
+
+        if not source:
+            cells_to_remove.append(i)
+
+    # Remove empty cells in reverse order to maintain indices
+    for i in reversed(cells_to_remove):
+        del nb["cells"][i]
+
+
+def generate_badge_cell(nb_path: Path | str) -> dict:
+    """Generate a markdown cell with Colab and Kaggle badges.
+
+    Args:
+        nb_path: The destination path where the notebook will be written
+                 (e.g., "tutorials/W1D1_Generalization/student/W1D1_Tutorial1.ipynb")
+
+    Returns:
+        A notebook cell dict with both badges as markdown content.
+    """
+    colab_url = f"https://colab.research.google.com/github/{ORG}/{REPO}/blob/{MAIN_BRANCH}/{nb_path}"
+    colab_badge = "https://colab.research.google.com/assets/colab-badge.svg"
+    kaggle_src = (
+        f"https://raw.githubusercontent.com/{ORG}/{REPO}/{MAIN_BRANCH}/{nb_path}"
+    )
+    kaggle_url = f"https://kaggle.com/kernels/welcome?src={kaggle_src}"
+    kaggle_badge = "https://kaggle.com/static/images/open-in-kaggle.svg"
+
+    badge_html = (
+        f'<a href="{colab_url}" target="_parent">'
+        f'<img src="{colab_badge}" alt="Open In Colab"/></a>'
+        f" &nbsp; "
+        f'<a href="{kaggle_url}" target="_parent">'
+        f'<img src="{kaggle_badge}" alt="Open in Kaggle"/></a>'
+    )
+
+    cell = nbformat.v4.new_markdown_cell(source=badge_html)
+    cell.metadata["id"] = "view-in-github"
+    cell.metadata["colab_type"] = "text"
+    return cell
+
+
+def add_badge_cell(nb: dict, nb_path: dict | str) -> None:
+    """Remove existing badges and add a new badge cell at the top of the notebook.
+>>>>>>> main
+
+    Args:
+        nb: The notebook dict
+        nb_path: The destination path where the notebook will be written
+    """
+    remove_existing_badges(nb)
+    badge_cell = generate_badge_cell(nb_path)
+    nb["cells"].insert(0, badge_cell)
+
+<<<<<<< HEAD
 def redirect_colab_badge_to_instructor_version(cell):
     """Modify the Colab badge to point at instructor version of the notebook."""
     cell_text = cell["source"]
@@ -506,16 +593,15 @@ def add_kaggle_badge(cell, nb_path):
         basic_url = f"https://raw.githubusercontent.com/{ORG}"
         a = f'<a href=\"{service}{basic_url}/{REPO}/{MAIN_BRANCH}/{nb_path}\" target=\"_parent\"><img src=\"{badge_link}\" alt=\"{alter}\"/></a>'
         cell["source"] += f' &nbsp; {a}'
+=======
+>>>>>>> main
 
 def sequentially_executed(nb):
     """Return True if notebook appears freshly executed from top-to-bottom."""
     exec_counts = [
         cell["execution_count"]
         for cell in nb.get("cells", [])
-        if (
-            cell["source"]
-            and cell.get("execution_count", None) is not None
-        )
+        if (cell["source"] and cell.get("execution_count", None) is not None)
     ]
     sequential_counts = list(range(1, 1 + len(exec_counts)))
     # Returns True if there are no executed code cells, which is fine?
@@ -550,36 +636,36 @@ def parse_args(arglist):
     parser.add_argument(
         "files",
         nargs="+",
-        help="File name(s) to process. Will filter for .ipynb extension."
+        help="File name(s) to process. Will filter for .ipynb extension.",
     )
     parser.add_argument(
         "--execute",
         action="store_true",
-        help="Execute the notebook and fail if errors are encountered."
+        help="Execute the notebook and fail if errors are encountered.",
     )
     parser.add_argument(
         "--check-execution",
         action="store_true",
         dest="check_execution",
-        help="Check that each code cell has been executed and did not error."
+        help="Check that each code cell has been executed and did not error.",
     )
     parser.add_argument(
         "--allow-non-sequential",
         action="store_false",
         dest="require_sequential",
-        help="Don't fail if the notebook is not sequentially executed."
+        help="Don't fail if the notebook is not sequentially executed.",
     )
     parser.add_argument(
         "--check-only",
         action="store_true",
         dest="check_only",
-        help="Only run QC checks; don't do post-processing."
+        help="Only run QC checks; don't do post-processing.",
     )
     parser.add_argument(
         "--raise-fast",
         action="store_true",
         dest="raise_fast",
-        help="Raise errors immediately rather than collecting and reporting."
+        help="Raise errors immediately rather than collecting and reporting.",
     )
     return parser.parse_args(arglist)
 
