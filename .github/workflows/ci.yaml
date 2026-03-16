@@ -30,4 +30,4 @@ jobs:
           jupyter kernelspec list
 
       - name: Execute tests
-        run: make test
+        run: pytest tests/

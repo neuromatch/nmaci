@@ -1,3 +1,5 @@
+import sys
+import os
 from subprocess import run
 from pytest import fixture
 
@@ -5,6 +7,8 @@ from scripts.process_notebooks import (
     add_badge_cell,
     generate_badge_cell,
     remove_existing_badges,
+    clean_whitespace,
+    has_solution,
 )
 
 
@@ -72,9 +76,32 @@ def test_executed_successfully(cmd):
     assert nb in res.stdout.decode("utf-8")
 
 
+def test_clean_whitespace():
+
+    nb = {
+        "cells": [
+            {"cell_type": "code", "source": "import numpy  \nimport matplotlib   "},
+            {"cell_type": "markdown", "source": "# Test notebook  "},
+        ]
+    }
+    clean_whitespace(nb)
+    assert nb["cells"][0]["source"] == "import numpy\nimport matplotlib"
+    assert nb["cells"][1]["source"] == "# Test notebook  "
+
+
+def test_has_solution():
+
+    cell = {"source": "# solution"}
+    assert not has_solution(cell)
+
+    cell = {"source": "def exercise():\n    pass\n# to_remove"}
+    assert not has_solution(cell)
+
+    cell = {"source": "# to_remove_solution\ndef exercise():\n    pass"}
+    assert has_solution(cell)
+
+
 # --- Badge function tests ---
-
-
 def test_remove_existing_badges_colab_only():
     """Test removing a cell with only a Colab badge."""
     nb = {
