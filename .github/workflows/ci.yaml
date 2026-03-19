@@ -21,11 +21,13 @@ jobs:
 
       - name: Setup uv
         uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.9"
 
       - name: Install dependencies
         run: |
-          uv pip install -e ".[dev]"
-          jupyter kernelspec list
+          uv sync --extra dev
+          uv run jupyter kernelspec list
 
       - name: Execute tests
-        run: pytest tests/ src/nmaci/
+        run: uv run pytest tests/ src/nmaci/
