@@ -1,3 +1,4 @@
+import argparse
 import os
 import sys
 import yaml
@@ -10,10 +11,13 @@ ORG = os.environ.get("ORG", "neuromatch")
 REPO = os.environ.get("NMA_REPO", "course-content-template")
 PREREQ_REPOR = os.environ.get("PREREQ_REPO", "precourse")
 PREREQ_INTRO = os.environ.get("PREREQ_INTRO", "ComputationalNeuroscience")
-ARG = sys.argv[1]
 
 
-def main():
+def main(arglist=None):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("book_type", choices=["student", "instructor"])
+    args = parser.parse_args(arglist)
+    ARG = args.book_type
     with open('tutorials/materials.yml') as fh:
         materials = yaml.load(fh, Loader=yaml.FullLoader)
 

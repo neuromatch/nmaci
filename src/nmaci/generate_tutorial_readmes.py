@@ -12,7 +12,7 @@ REPO = os.environ.get("NMA_REPO", "course-content")
 MAIN_BRANCH = os.environ.get("NMA_MAIN_BRANCH", "main")
 
 
-def main():
+def main(arglist=None):
 
     # Initialize the lines in tutorials/README.md
     course_readme_text = [

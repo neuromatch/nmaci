@@ -2,9 +2,9 @@
 import os
 import sys
 
-if __name__ == "__main__":
-
-    _, *files = sys.argv
+def main(arglist=None):
+    if arglist is None:
+        arglist = sys.argv[1:]
 
     # Filter paths from the git manifest
     # - Only process .ipynb
@@ -18,5 +18,9 @@ if __name__ == "__main__":
             os.path.isfile(path),
         ])
 
-    nb_paths = [f for f in files if should_process(f)]
+    nb_paths = [f for f in arglist if should_process(f)]
     print(" ".join(nb_paths))
+
+
+if __name__ == "__main__":
+    main()

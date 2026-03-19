@@ -1,8 +1,8 @@
 """Print names of derivative files that are no longer used in the notebooks."""
 from glob import glob
 
-if __name__ == "__main__":
-
+def main(arglist=None):
+    # arglist is ignored — operates on cwd
     day_paths = glob("tutorials/W?D?_*")
     for day_path in sorted(day_paths):
 
@@ -22,3 +22,7 @@ if __name__ == "__main__":
         for path in sorted(static_paths + script_paths):
             if path not in notebook_text:
                 print(path)
+
+
+if __name__ == "__main__":
+    main()

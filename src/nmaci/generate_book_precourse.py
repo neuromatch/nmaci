@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 
 REPO = os.environ.get("NMA_REPO", "precourse")
 
-def main():
+def main(arglist=None):
     with open('tutorials/materials.yml') as fh:
         materials = yaml.load(fh, Loader=yaml.FullLoader)
 

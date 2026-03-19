@@ -1,3 +1,4 @@
+import argparse
 import os
 import sys
 import yaml
@@ -7,9 +8,13 @@ import json
 from bs4 import BeautifulSoup
 
 REPO = os.environ.get("NMA_REPO", "course-content-dl")
-ARG = sys.argv[1]
 
-def main():
+
+def main(arglist=None):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("book_type", choices=["student", "instructor"])
+    args = parser.parse_args(arglist)
+    ARG = args.book_type
     with open('tutorials/materials.yml') as fh:
         materials = yaml.load(fh, Loader=yaml.FullLoader)
 
