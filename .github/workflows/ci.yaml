@@ -19,15 +19,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: 3.9
+          python-version: "3.9"
 
       - name: Install dependencies
         run: |
-          pip install pytest -r requirements.txt
-          jupyter kernelspec list
+          uv sync --extra dev
+          uv run jupyter kernelspec list
 
       - name: Execute tests
-        run: pytest tests/
+        run: uv run pytest tests/ src/nmaci/
