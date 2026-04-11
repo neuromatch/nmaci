@@ -8,16 +8,6 @@
   "commitConvention": "angular",
   "contributors": [
     {
-      "login": "OleBialas",
-      "name": "Ole Bialas",
-      "avatar_url": "https://avatars.githubusercontent.com/u/38684453?v=4",
-      "profile": "https://github.com/OleBialas",
-      "contributions": [
-        "code",
-        "maintenance"
-      ]
-    },
-    {
       "login": "iamzoltan",
       "name": "Zoltan",
       "avatar_url": "https://avatars.githubusercontent.com/u/21369773?v=4",
