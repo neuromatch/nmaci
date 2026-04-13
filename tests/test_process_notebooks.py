@@ -3,7 +3,7 @@ import os
 from subprocess import run
 from pytest import fixture
 
-from scripts.process_notebooks import (
+from nmaci.process_notebooks import (
     add_badge_cell,
     generate_badge_cell,
     remove_existing_badges,
@@ -14,12 +14,12 @@ from scripts.process_notebooks import (
 
 @fixture
 def cmd():
-    return ["python", "scripts/process_notebooks.py"]
+    return ["nmaci", "process-notebooks"]
 
 
 def test_raises_not_implemented_error(cmd):
 
-    nb = "tutorials/raises_notimplemented_error.ipynb"
+    nb = "tests/tutorials/raises_notimplemented_error.ipynb"
     cmdline = cmd + ["--check-only", "--execute", nb]
     res = run(cmdline, capture_output=True)
     assert not res.returncode
@@ -28,7 +28,7 @@ def test_raises_not_implemented_error(cmd):
 
 def test_raises_name_error(cmd):
 
-    nb = "tutorials/raises_name_error.ipynb"
+    nb = "tests/tutorials/raises_name_error.ipynb"
     cmdline = cmd + ["--check-only", "--execute", nb]
     res = run(cmdline, capture_output=True)
     assert res.returncode
@@ -39,7 +39,7 @@ def test_raises_name_error(cmd):
 
 def test_executed_out_of_order(cmd):
 
-    nb = "tutorials/executed_out_of_order.ipynb"
+    nb = "tests/tutorials/executed_out_of_order.ipynb"
     cmdline = cmd + ["--check-only", nb]
     res = run(cmdline, capture_output=True)
     assert res.returncode
@@ -49,7 +49,7 @@ def test_executed_out_of_order(cmd):
 
 def test_executed_partially(cmd):
 
-    nb = "tutorials/executed_partially.ipynb"
+    nb = "tests/tutorials/executed_partially.ipynb"
     cmdline = cmd + ["--check-only", "--check-execution", nb]
     res = run(cmdline, capture_output=True)
     assert res.returncode
@@ -59,7 +59,7 @@ def test_executed_partially(cmd):
 
 def test_executed_with_error(cmd):
 
-    nb = "tutorials/executed_with_error.ipynb"
+    nb = "tests/tutorials/executed_with_error.ipynb"
     cmdline = cmd + ["--check-only", "--check-execution", nb]
     res = run(cmdline, capture_output=True)
     assert res.returncode
@@ -69,7 +69,7 @@ def test_executed_with_error(cmd):
 
 def test_executed_successfully(cmd):
 
-    nb = "tutorials/executed_successfully.ipynb"
+    nb = "tests/tutorials/executed_successfully.ipynb"
     cmdline = cmd + ["--check-only", "--check-execution", nb]
     res = run(cmdline, capture_output=True)
     assert not res.returncode
@@ -165,7 +165,7 @@ def test_remove_existing_badges_no_badges():
 
 def test_generate_badge_cell_structure():
     """Test that generate_badge_cell creates correct cell structure."""
-    cell = generate_badge_cell("tutorials/W1D1_Intro/W1D1_Tutorial1.ipynb")
+    cell = generate_badge_cell("tests/tutorials/W1D1_Intro/W1D1_Tutorial1.ipynb")
 
     assert cell["cell_type"] == "markdown"
     assert cell["metadata"]["id"] == "view-in-github"
@@ -174,27 +174,27 @@ def test_generate_badge_cell_structure():
 
 def test_generate_badge_cell_colab_badge():
     """Test that generate_badge_cell includes correct Colab badge."""
-    cell = generate_badge_cell("tutorials/W1D1_Intro/W1D1_Tutorial1.ipynb")
+    cell = generate_badge_cell("tests/tutorials/W1D1_Intro/W1D1_Tutorial1.ipynb")
 
     assert "colab-badge.svg" in cell["source"]
     assert "colab.research.google.com/github" in cell["source"]
-    assert "tutorials/W1D1_Intro/W1D1_Tutorial1.ipynb" in cell["source"]
+    assert "tests/tutorials/W1D1_Intro/W1D1_Tutorial1.ipynb" in cell["source"]
 
 
 def test_generate_badge_cell_kaggle_badge():
     """Test that generate_badge_cell includes correct Kaggle badge."""
-    cell = generate_badge_cell("tutorials/W1D1_Intro/W1D1_Tutorial1.ipynb")
+    cell = generate_badge_cell("tests/tutorials/W1D1_Intro/W1D1_Tutorial1.ipynb")
 
     assert "open-in-kaggle.svg" in cell["source"]
     assert "kaggle.com/kernels/welcome" in cell["source"]
-    assert "tutorials/W1D1_Intro/W1D1_Tutorial1.ipynb" in cell["source"]
+    assert "tests/tutorials/W1D1_Intro/W1D1_Tutorial1.ipynb" in cell["source"]
 
 
 def test_generate_badge_cell_student_path():
     """Test that generate_badge_cell works with student paths."""
-    cell = generate_badge_cell("tutorials/W1D1_Intro/student/W1D1_Tutorial1.ipynb")
+    cell = generate_badge_cell("tests/tutorials/W1D1_Intro/student/W1D1_Tutorial1.ipynb")
 
-    assert "tutorials/W1D1_Intro/student/W1D1_Tutorial1.ipynb" in cell["source"]
+    assert "tests/tutorials/W1D1_Intro/student/W1D1_Tutorial1.ipynb" in cell["source"]
 
 
 def test_add_badge_cell_replaces_old_badges():
@@ -209,7 +209,7 @@ def test_add_badge_cell_replaces_old_badges():
         ]
     }
 
-    add_badge_cell(nb, "tutorials/W1D1_Intro/W1D1_Tutorial1.ipynb")
+    add_badge_cell(nb, "tests/tutorials/W1D1_Intro/W1D1_Tutorial1.ipynb")
 
     # Should have 2 cells: new badge cell + code cell
     assert len(nb["cells"]) == 2
@@ -228,7 +228,7 @@ def test_add_badge_cell_to_empty_notebook():
         ]
     }
 
-    add_badge_cell(nb, "tutorials/W1D1_Intro/W1D1_Tutorial1.ipynb")
+    add_badge_cell(nb, "tests/tutorials/W1D1_Intro/W1D1_Tutorial1.ipynb")
 
     assert len(nb["cells"]) == 2
     assert nb["cells"][0]["metadata"]["id"] == "view-in-github"
