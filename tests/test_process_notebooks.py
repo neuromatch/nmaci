@@ -163,6 +163,135 @@ def test_remove_existing_badges_no_badges():
     assert nb["cells"][1]["source"] == "import numpy as np"
 
 
+
+
+def test_remove_existing_badges_markdown_colab_only():
+    """Test removing a markdown Colab-only badge."""
+    nb = {
+        "cells": [
+            {
+                "cell_type": "markdown",
+                "source": "[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/neuromatch/course/blob/main/test.ipynb)",
+            },
+            {"cell_type": "code", "source": "import numpy as np"},
+        ]
+    }
+    remove_existing_badges(nb)
+    assert len(nb["cells"]) == 1
+    assert nb["cells"][0]["source"] == "import numpy as np"
+
+
+def test_remove_existing_badges_markdown_kaggle_only():
+    """Test removing a markdown Kaggle-only badge."""
+    nb = {
+        "cells": [
+            {
+                "cell_type": "markdown",
+                "source": "[![Open in Kaggle](https://kaggle.com/static/images/open-in-kaggle.svg)](https://kaggle.com/kernels/welcome?src=https://raw.githubusercontent.com/neuromatch/course/main/test.ipynb)",
+            },
+            {"cell_type": "code", "source": "import numpy as np"},
+        ]
+    }
+    remove_existing_badges(nb)
+    assert len(nb["cells"]) == 1
+    assert nb["cells"][0]["source"] == "import numpy as np"
+
+
+def test_remove_existing_badges_markdown_both():
+    """Test removing a cell with both markdown badges."""
+    nb = {
+        "cells": [
+            {
+                "cell_type": "markdown",
+                "source": "[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/neuromatch/course/blob/main/test.ipynb) [![Open in Kaggle](https://kaggle.com/static/images/open-in-kaggle.svg)](https://kaggle.com/kernels/welcome?src=https://raw.githubusercontent.com/neuromatch/course/main/test.ipynb)",
+            },
+            {"cell_type": "code", "source": "import numpy as np"},
+        ]
+    }
+    remove_existing_badges(nb)
+    assert len(nb["cells"]) == 1
+    assert nb["cells"][0]["source"] == "import numpy as np"
+
+
+def test_remove_existing_badges_markdown_preserves_content():
+    """Test that non-badge content is preserved after markdown badge removal."""
+    nb = {
+        "cells": [
+            {
+                "cell_type": "markdown",
+                "source": "# Title\n\n[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/neuromatch/course/blob/main/test.ipynb)",
+            },
+        ]
+    }
+    remove_existing_badges(nb)
+    assert len(nb["cells"]) == 1
+    assert nb["cells"][0]["source"] == "# Title"
+
+
+def test_remove_existing_badges_mixed_html_and_markdown_colab():
+    """Test removing a cell with both HTML and markdown Colab badges."""
+    nb = {
+        "cells": [
+            {
+                "cell_type": "markdown",
+                "source": '<a href="https://colab.research.google.com/github/old/path" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>\n\n[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/new/path/blob/main/test.ipynb)',
+            },
+            {"cell_type": "code", "source": "import numpy as np"},
+        ]
+    }
+    remove_existing_badges(nb)
+    assert len(nb["cells"]) == 1
+    assert nb["cells"][0]["source"] == "import numpy as np"
+
+
+def test_remove_existing_badges_mixed_html_and_markdown_kaggle():
+    """Test removing a cell with both HTML and markdown Kaggle badges."""
+    nb = {
+        "cells": [
+            {
+                "cell_type": "markdown",
+                "source": '<a href="https://kaggle.com/kernels/welcome?src=https://raw.githubusercontent.com/old/path" target="_parent"><img src="https://kaggle.com/static/images/open-in-kaggle.svg" alt="Open in Kaggle"/></a>\n\n[![Open in Kaggle](https://kaggle.com/static/images/open-in-kaggle.svg)](https://kaggle.com/kernels/welcome?src=https://raw.githubusercontent.com/new/path/main/test.ipynb)',
+            },
+            {"cell_type": "code", "source": "import numpy as np"},
+        ]
+    }
+    remove_existing_badges(nb)
+    assert len(nb["cells"]) == 1
+    assert nb["cells"][0]["source"] == "import numpy as np"
+
+
+def test_remove_existing_badges_mixed_html_and_markdown_all():
+    """Test removing a cell with both HTML and markdown badges for both platforms."""
+    nb = {
+        "cells": [
+            {
+                "cell_type": "markdown",
+                "source": '<a href="https://colab.research.google.com/github/old/path" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>\n\n[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/new/path/blob/main/test.ipynb) &nbsp; <a href="https://kaggle.com/kernels/welcome?src=https://raw.githubusercontent.com/old/path" target="_parent"><img src="https://kaggle.com/static/images/open-in-kaggle.svg" alt="Open in Kaggle"/></a>\n\n[![Open in Kaggle](https://kaggle.com/static/images/open-in-kaggle.svg)](https://kaggle.com/kernels/welcome?src=https://raw.githubusercontent.com/new/path/main/test.ipynb)',
+            },
+            {"cell_type": "code", "source": "import numpy as np"},
+        ]
+    }
+    remove_existing_badges(nb)
+    assert len(nb["cells"]) == 1
+    assert nb["cells"][0]["source"] == "import numpy as np"
+
+
+def test_remove_existing_badges_mixed_preserves_content():
+    """Test that non-badge content is preserved when removing mixed HTML and markdown badges."""
+    nb = {
+        "cells": [
+            {
+                "cell_type": "markdown",
+                "source": '# Title\n\nThis is a description.\n\n<a href="https://colab.research.google.com/github/old/path" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>\n\n[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/new/path/blob/main/test.ipynb) &nbsp; <a href="https://kaggle.com/kernels/welcome?src=https://raw.githubusercontent.com/old/path" target="_parent"><img src="https://kaggle.com/static/images/open-in-kaggle.svg" alt="Open in Kaggle"/></a>',
+            },
+        ]
+    }
+    remove_existing_badges(nb)
+    assert len(nb["cells"]) == 1
+    assert "# Title" in nb["cells"][0]["source"]
+    assert "This is a description." in nb["cells"][0]["source"]
+
+
 def test_generate_badge_cell_structure():
     """Test that generate_badge_cell creates correct cell structure."""
     cell = generate_badge_cell("tests/tutorials/W1D1_Intro/W1D1_Tutorial1.ipynb")

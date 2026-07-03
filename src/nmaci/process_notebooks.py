@@ -465,6 +465,7 @@ def remove_existing_badges(nb: dict) -> None:
 
     - Removes Colab badge HTML (<a href="...colab..."><img src="...colab-badge.svg..."/></a>)
     - Removes Kaggle badge HTML (<a href="...kaggle..."><img src="...open-in-kaggle.svg..."/></a>)
+    - Removes Colab and Kaggle markdown badges
     - Removes &nbsp; spacers between badges
     - Deletes cells that become empty after badge removal
     - Strips leading/trailing whitespace from cells
@@ -477,6 +478,14 @@ def remove_existing_badges(nb: dict) -> None:
         r'<a\s+[^>]*href="[^"]*kaggle[^"]*"[^>]*>\s*<img\s+[^>]*open-in-kaggle\.svg[^>]*/>\s*</a>',
         re.IGNORECASE,
     )
+    md_colab_pattern = re.compile(
+        r'\[!\[Open In Colab\]\([^)]*colab-badge\.svg[^)]*\)\]\([^)]*\)',
+        re.IGNORECASE,
+    )
+    md_kaggle_pattern = re.compile(
+        r'\[!\[Open in Kaggle\]\([^)]*open-in-kaggle\.svg[^)]*\)\]\([^)]*\)',
+        re.IGNORECASE,
+    )
     nbsp_pattern = re.compile(r"\s*&nbsp;\s*")
 
     cells_to_remove = []
@@ -485,6 +494,8 @@ def remove_existing_badges(nb: dict) -> None:
         source = cell.get("source", "")
         source = colab_pattern.sub("", source)
         source = kaggle_pattern.sub("", source)
+        source = md_colab_pattern.sub("", source)
+        source = md_kaggle_pattern.sub("", source)
         source = nbsp_pattern.sub("", source)
         source = source.strip()
         cell["source"] = source
