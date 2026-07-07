@@ -88,14 +88,14 @@ def main(arglist=None):
     
 #    # Add the project booklet
     toc["Project Booklet"] = {"part": "Project Booklet", "chapters": []}
-    toc["Professional Development"] = {
-        "part": "Professional Development", "chapters": []}
 
-    with open("projects/professional_development/prof_dev_materials.yml") as fh:
-        prof_dev_materials = yaml.load(fh, Loader=yaml.FullLoader)
-
-    part = "Professional Development"
-    toc[part]['chapters'] = prof_dev_materials
+    # Professional Development
+    prof_dev_file_path = "projects/professional_development/prof_dev_materials.yml"
+    if os.path.exists(prof_dev_file_path):
+        with open(prof_dev_file_path) as fh:
+            prof_dev_materials = yaml.load(fh, Loader=yaml.FullLoader)
+        toc["Professional Development"] = {
+            "part": "Professional Development", "chapters": [prof_dev_materials]}
 
     # Project chapter -- based on the repo
     with open("projects/project_materials.yml") as fh:
